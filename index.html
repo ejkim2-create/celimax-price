@@ -17,7 +17,12 @@
   .langs{ display:flex; gap:4px; }
   .langs button{ border:1px solid #d7ddd7; background:#fff; color:var(--muted); font-size:12px; padding:5px 10px; border-radius:7px; cursor:pointer; font-weight:600; }
   .langs button.active{ background:var(--brand); color:#fff; border-color:var(--brand); }
-  .legend{ font-size:11.5px; color:var(--muted); margin:14px 0 10px; line-height:1.5; }
+  .controls{ display:flex; align-items:center; gap:8px; margin:14px 0 4px; flex-wrap:wrap; }
+  .controls label{ font-size:12px; color:var(--muted); font-weight:600; }
+  .controls select{ font-size:12.5px; padding:5px 8px; border:1px solid #d7ddd7; border-radius:7px; background:#fff; color:var(--ink); max-width:100%; }
+  .viewing{ font-size:11.5px; color:var(--muted); }
+  .viewing.hist{ color:var(--above); font-weight:600; }
+  .legend{ font-size:11.5px; color:var(--muted); margin:10px 0 10px; line-height:1.5; }
   .legend b.below{ color:var(--below); } .legend b.above{ color:var(--above); }
   .tablecard{ background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.06); }
   table{ width:100%; border-collapse:collapse; }
@@ -34,7 +39,6 @@
   td .na{ color:#c2c8c2; }
   .foot{ color:#8a938a; font-size:11.5px; margin-top:16px; line-height:1.55; }
   .status{ color:#8a938a; font-size:12px; padding:24px 4px; }
-  /* Mobile */
   @media (max-width:640px){
     .wrap{ padding:16px 10px 40px; }
     th,td{ padding:8px 7px; }
@@ -49,7 +53,7 @@
 <div class="wrap">
   <div class="top">
     <div>
-      <h1><span class="brand">CELIMAX</span> · <span data-i="title"></span> <span id="date" class="sub" style="display:inline"></span></h1>
+      <h1><span class="brand">CELIMAX</span> · <span data-i="title"></span></h1>
       <p class="sub" data-i="subtitle"></p>
     </div>
     <div class="langs" id="langs">
@@ -57,6 +61,12 @@
       <button data-lang="en">EN</button>
       <button data-lang="ru">RU</button>
     </div>
+  </div>
+
+  <div class="controls">
+    <label for="snap" data-i="asof"></label>
+    <select id="snap"><option value="latest"></option></select>
+    <span class="viewing" id="viewing"></span>
   </div>
 
   <div class="legend" data-i="legend"></div>
@@ -78,47 +88,44 @@
 </div>
 
 <script>
-const I18N = {
-  ko:{
-    title:"3채널 가격 비교",
+var I18N = {
+  ko:{ title:"3채널 가격 비교",
     subtitle:"제안가(권장 소비자가) 대비 Ozon · Wildberries · 공식몰(Подружка) 판매가 · 통화 ₽",
     legend:'각 칸 아래 %는 <b>제안가 대비</b>: <b class="below">−초록</b> = 제안가보다 쌈, <b class="above">+빨강</b> = 제안가보다 비쌈. 굵은 초록가격 = 그 제품의 최저 채널.',
     col_product:"제품", col_rec:"제안가", col_mall:"공식몰",
-    loading:"불러오는 중…",
-    err:"데이터를 불러오지 못했습니다 (data.json 확인).",
-    foot:'기준일 {date} · Ozon=셀러 Подружка/celimax, WB=card.wb.ru, 공식몰=podrygka.ru. "—"는 해당 채널 미판매/미확인.'
-  },
-  en:{
-    title:"3-Channel Price Compare",
+    asof:"조회 시점:", latest:"현재(최신)", now_viewing:"과거 기록 보는 중 · ",
+    loading:"불러오는 중…", err:"데이터를 불러오지 못했습니다 (data.json 확인).",
+    foot:'기준일 {date} · Ozon=셀러 Подружка/celimax, WB=card.wb.ru, 공식몰=podrygka.ru. "—"는 해당 채널 미판매/미확인. 4시간마다 자동 갱신·기록.' },
+  en:{ title:"3-Channel Price Compare",
     subtitle:"Ozon · Wildberries · Official Mall (Подружка) prices vs. recommended price · currency ₽",
-    legend:'The % under each cell is <b>vs. the recommended price</b>: <b class="below">−green</b> = cheaper, <b class="above">+red</b> = more expensive. Bold green price = lowest channel for that product.',
+    legend:'The % under each cell is <b>vs. the recommended price</b>: <b class="below">−green</b> = cheaper, <b class="above">+red</b> = more expensive. Bold green price = lowest channel.',
     col_product:"Product", col_rec:"Rec.", col_mall:"Official Mall",
-    loading:"Loading…",
-    err:"Failed to load data (check data.json).",
-    foot:'As of {date} · Ozon=seller Подружка/celimax, WB=card.wb.ru, Official mall=podrygka.ru. "—" = not sold / unconfirmed on that channel.'
-  },
-  ru:{
-    title:"Сравнение цен по 3 каналам",
-    subtitle:"Цены Ozon · Wildberries · Офиц. магазин (Подружка) относительно рекомендованной цены · валюта ₽",
-    legend:'Процент под каждой ячейкой — <b>относительно рекоменд. цены</b>: <b class="below">−зелёный</b> = дешевле, <b class="above">+красный</b> = дороже. Жирная зелёная цена = самый дешёвый канал для товара.',
+    asof:"As of:", latest:"Now (latest)", now_viewing:"Viewing past record · ",
+    loading:"Loading…", err:"Failed to load data (check data.json).",
+    foot:'As of {date} · Ozon=seller Подружка/celimax, WB=card.wb.ru, Official mall=podrygka.ru. "—" = not sold / unconfirmed. Auto-updated & logged every 4 hours.' },
+  ru:{ title:"Сравнение цен по 3 каналам",
+    subtitle:"Цены Ozon · Wildberries · Офиц. магазин (Подружка) относительно рекоменд. цены · валюта ₽",
+    legend:'Процент под каждой ячейкой — <b>относительно рекоменд. цены</b>: <b class="below">−зелёный</b> = дешевле, <b class="above">+красный</b> = дороже. Жирная зелёная цена = самый дешёвый канал.',
     col_product:"Товар", col_rec:"Реком.", col_mall:"Офиц. магазин",
-    loading:"Загрузка…",
-    err:"Не удалось загрузить данные (проверьте data.json).",
-    foot:'На {date} · Ozon=продавец Подружка/celimax, WB=card.wb.ru, Офиц. магазин=podrygka.ru. «—» = не продаётся / не подтверждено на канале.'
-  }
+    asof:"На момент:", latest:"Сейчас (последнее)", now_viewing:"Просмотр прошлой записи · ",
+    loading:"Загрузка…", err:"Не удалось загрузить данные (проверьте data.json).",
+    foot:'На {date} · Ozon=продавец Подружка/celimax, WB=card.wb.ru, Офиц. магазин=podrygka.ru. «—» = не продаётся / не подтверждено. Автообновление и запись каждые 4 часа.' }
 };
 
-let DATA = null;
-let lang = (localStorage.getItem("celimax_lang")) || (navigator.language||"ko").slice(0,2);
+var DATA = null;
+var HISTORY = null;
+var NAMEMAP = {};
+var lang = localStorage.getItem("celimax_lang") || (navigator.language||"ko").slice(0,2);
 if(!I18N[lang]) lang = "ko";
+var viewTs = "latest";
 
 function fmt(n){ return n==null ? "—" : n.toLocaleString("ru-RU")+" ₽"; }
 
 function cell(price, rec, isLow){
   if(price==null) return '<td class="num"><span class="na">—</span></td>';
-  let vs='<span class="vs na">—</span>';
+  var vs='<span class="vs na">—</span>';
   if(rec){
-    const pct=Math.round((1-price/rec)*100);
+    var pct=Math.round((1-price/rec)*100);
     if(price<rec) vs='<span class="vs below">−'+pct+'%</span>';
     else if(price>rec) vs='<span class="vs above">+'+Math.abs(pct)+'%</span>';
     else vs='<span class="vs na">0%</span>';
@@ -126,55 +133,93 @@ function cell(price, rec, isLow){
   return '<td class="num"><span class="price'+(isLow?' low':'')+'">'+fmt(price)+'</span>'+vs+'</td>';
 }
 
-function nameOf(it){ return it["name_"+lang] || it.name_ko; }
+function nameOf(name_ko){
+  var m = NAMEMAP[name_ko];
+  if(!m) return name_ko;
+  return m["name_"+lang] || m.name_ko;
+}
+
+function currentItems(){
+  if(viewTs==="latest" || !HISTORY){
+    return DATA.items.map(function(it){ return {k:it.name_ko, r:it.rec, o:it.ozon, w:it.wb, m:it.mall}; });
+  }
+  var snap = HISTORY.snapshots.filter(function(s){ return s.ts===viewTs; })[0];
+  return snap ? snap.i : DATA.items.map(function(it){ return {k:it.name_ko, r:it.rec, o:it.ozon, w:it.wb, m:it.mall}; });
+}
 
 function applyStatic(){
-  const t=I18N[lang];
+  var t=I18N[lang];
   document.documentElement.lang = lang;
-  document.querySelectorAll("[data-i]").forEach(el=>{
-    const k=el.getAttribute("data-i");
-    if(k==="foot"){ el.innerHTML = t.foot.replace("{date}", DATA?DATA.date:"—"); return; }
-    if(k==="loading"){ el.textContent = t.loading; return; }
-    if(t[k]!=null) el.innerHTML = t[k];
-  });
-  document.querySelectorAll("#langs button").forEach(b=>{
-    b.classList.toggle("active", b.dataset.lang===lang);
-  });
+  var els=document.querySelectorAll("[data-i]");
+  for(var i=0;i<els.length;i++){
+    var k=els[i].getAttribute("data-i");
+    if(k==="foot"){ els[i].innerHTML = t.foot.replace("{date}", DATA?DATA.date:"—"); continue; }
+    if(t[k]!=null) els[i].innerHTML = t[k];
+  }
+  var bs=document.querySelectorAll("#langs button");
+  for(var j=0;j<bs.length;j++){ bs[j].classList.toggle("active", bs[j].getAttribute("data-lang")===lang); }
+}
+
+function buildSnapSelect(){
+  var sel=document.getElementById("snap");
+  sel.innerHTML="";
+  var opt0=document.createElement("option");
+  opt0.value="latest"; opt0.textContent=I18N[lang].latest; sel.appendChild(opt0);
+  if(HISTORY && HISTORY.snapshots){
+    var arr=HISTORY.snapshots.slice().reverse();
+    for(var i=0;i<arr.length;i++){
+      var o=document.createElement("option"); o.value=arr[i].ts; o.textContent=arr[i].ts; sel.appendChild(o);
+    }
+  }
+  sel.value = viewTs;
 }
 
 function render(){
   applyStatic();
-  const rows=document.getElementById("rows");
+  var rows=document.getElementById("rows");
   if(!DATA){ return; }
-  document.getElementById("date").textContent = "· "+DATA.date;
+  buildSnapSelect();
+  var vEl=document.getElementById("viewing");
+  if(viewTs==="latest"){ vEl.className="viewing"; vEl.textContent=""; }
+  else { vEl.className="viewing hist"; vEl.textContent=I18N[lang].now_viewing+viewTs; }
+
   rows.innerHTML="";
-  DATA.items.forEach(it=>{
-    const vals=[it.ozon,it.wb,it.mall].filter(v=>v!=null);
-    const low = vals.length ? Math.min(...vals) : null;
-    const tr=document.createElement("tr");
-    tr.innerHTML='<td class="name">'+nameOf(it)+'</td>'+
-      '<td class="num rec">'+fmt(it.rec)+'</td>'+
-      cell(it.ozon,it.rec,it.ozon!=null&&it.ozon===low)+
-      cell(it.wb,it.rec,it.wb!=null&&it.wb===low)+
-      cell(it.mall,it.rec,it.mall!=null&&it.mall===low);
+  var items=currentItems();
+  for(var i=0;i<items.length;i++){
+    var it=items[i];
+    var vals=[it.o,it.w,it.m].filter(function(v){ return v!=null; });
+    var low = vals.length ? Math.min.apply(null, vals) : null;
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td class="name">'+nameOf(it.k)+'</td>'+
+      '<td class="num rec">'+fmt(it.r)+'</td>'+
+      cell(it.o,it.r,it.o!=null&&it.o===low)+
+      cell(it.w,it.r,it.w!=null&&it.w===low)+
+      cell(it.m,it.r,it.m!=null&&it.m===low);
     rows.appendChild(tr);
-  });
+  }
 }
 
-document.getElementById("langs").addEventListener("click", e=>{
-  const b=e.target.closest("button"); if(!b) return;
-  lang=b.dataset.lang; localStorage.setItem("celimax_lang",lang); render();
+document.getElementById("langs").addEventListener("click", function(e){
+  var b=e.target.closest("button"); if(!b) return;
+  lang=b.getAttribute("data-lang"); localStorage.setItem("celimax_lang",lang); render();
+});
+document.getElementById("snap").addEventListener("change", function(e){
+  viewTs = e.target.value; render();
 });
 
-applyStatic(); // show localized loading text immediately
-fetch("data.json?_="+Date.now())
-  .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
-  .then(j=>{ DATA=j; render(); })
-  .catch(err=>{
-    document.getElementById("rows").innerHTML =
-      '<tr><td colspan="5" class="status">'+I18N[lang].err+'</td></tr>';
-    console.error(err);
-  });
+applyStatic();
+Promise.all([
+  fetch("data.json?_="+Date.now()).then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); }),
+  fetch("history.json?_="+Date.now()).then(function(r){ return r.ok ? r.json() : {snapshots:[]}; }).catch(function(){ return {snapshots:[]}; })
+]).then(function(res){
+  DATA=res[0]; HISTORY=res[1];
+  NAMEMAP={}; DATA.items.forEach(function(it){ NAMEMAP[it.name_ko]=it; });
+  render();
+}).catch(function(err){
+  document.getElementById("rows").innerHTML =
+    '<tr><td colspan="5" class="status">'+I18N[lang].err+'</td></tr>';
+  console.error(err);
+});
 </script>
 </body>
 </html>
