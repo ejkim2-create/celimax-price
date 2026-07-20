@@ -1,33 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-CELIMAX 가격 자동 갱신 + 이력 기록 (판매자별 구조)
-data.json     : {updated, sellers:[{id,name_*,items:[{name_*,rec,ozon,wb,mall}]}]}
-history.json  : {snapshots:[{ts, s:{sellerId:[{k,r,o,w,m}]}}]}
-products.json : (선택) [{name_ko, wb_nm, ozon_url, mall_url}]
-의존성: pip install requests
-"""
-
+"""CELIMAX 가격 자동 갱신 + 이력 기록 (제품에 채널코드 내장). 의존성: pip install requests"""
 import json, os, sys, time, datetime, re
-
 try:
     import requests
 except ImportError:
-    print("requests 필요:  pip install requests", file=sys.stderr); sys.exit(1)
+    print("requests 필요: pip install requests", file=sys.stderr); sys.exit(1)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(HERE, "data.json")
 HISTORY_FILE = os.path.join(HERE, "history.json")
-PRODUCTS_FILE = os.path.join(HERE, "products.json")
 MAX_SNAPSHOTS = 3000
-
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/125.0 Safari/537.36")
-S = requests.Session()
-S.headers.update({"User-Agent": UA, "Accept-Language": "ru-RU,ru;q=0.9"})
+S = requests.Session(); S.headers.update({"User-Agent": UA, "Accept-Language": "ru-RU,ru;q=0.9"})
 
-
-def wb(nm):
+def get_wb(nm):
     if not nm: return None
     u = "https://card.wb.ru/cards/v2/detail?appType=1&curr=rub&dest=-1257786&spp=30&nm=%s" % nm
     try:
@@ -44,9 +32,9 @@ def wb(nm):
         print("  [WB]", nm, e, file=sys.stderr)
     return None
 
-
-def ozon(url):
-    if not url: return None
+def get_ozon(code):
+    if not code: return None
+    url = "https://www.ozon.ru/product/%s/" % code
     try:
         r = S.get(url, timeout=20)
         if r.status_code != 200: return None
@@ -54,11 +42,10 @@ def ozon(url):
             re.search(r'"cardPrice".*?(\d[\d\s ]{2,})\s*₽', r.text)
         if m: return int(re.sub(r"[^\d]", "", m.group(1)))
     except Exception as e:
-        print("  [Ozon]", url, e, file=sys.stderr)
+        print("  [Ozon]", code, e, file=sys.stderr)
     return None
 
-
-def mall(url):
+def get_mall(url):
     if not url: return None
     try:
         r = S.get(url, timeout=20)
@@ -70,24 +57,16 @@ def mall(url):
         print("  [Mall]", url, e, file=sys.stderr)
     return None
 
-
 def main():
     data = json.load(open(DATA_FILE, encoding="utf-8"))
-
-    mapping = {}
-    if os.path.exists(PRODUCTS_FILE):
-        for p in json.load(open(PRODUCTS_FILE, encoding="utf-8")):
-            mapping[p.get("name_ko", "").strip()] = p
-
     for seller in data["sellers"]:
         for it in seller["items"]:
-            cfg = mapping.get(it.get("name_ko", "").strip())
-            if not cfg: continue
-            for field, fn, key in (("wb_nm", wb, "wb"), ("ozon_url", ozon, "ozon"), ("mall_url", mall, "mall")):
-                if cfg.get(field):
-                    v = fn(cfg[field])
-                    if v: it[key] = v
-                    time.sleep(0.4)
+            if it.get("wb_nm"):
+                v = get_wb(it["wb_nm"]);  it["wb"] = v if v else it.get("wb"); time.sleep(0.3)
+            if it.get("ozon_code"):
+                v = get_ozon(it["ozon_code"]);  it["ozon"] = v if v else it.get("ozon"); time.sleep(0.3)
+            if it.get("mall_url"):
+                v = get_mall(it["mall_url"]);  it["mall"] = v if v else it.get("mall"); time.sleep(0.3)
 
     kst = datetime.timezone(datetime.timedelta(hours=9))
     now = datetime.datetime.now(kst)
@@ -98,14 +77,11 @@ def main():
     for seller in data["sellers"]:
         snap["s"][seller["id"]] = [{"k": it["name_ko"], "r": it["rec"], "o": it["ozon"],
                                     "w": it["wb"], "m": it["mall"]} for it in seller["items"]]
-
     hist = json.load(open(HISTORY_FILE, encoding="utf-8")) if os.path.exists(HISTORY_FILE) else {"snapshots": []}
     hist["snapshots"].append(snap)
     hist["snapshots"] = hist["snapshots"][-MAX_SNAPSHOTS:]
     json.dump(hist, open(HISTORY_FILE, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
-
-    print("완료:", snap["ts"], "· 판매자", len(data["sellers"]), "· 스냅샷", len(hist["snapshots"]))
-
+    print("완료:", snap["ts"], "· 판매자", len(data["sellers"]))
 
 if __name__ == "__main__":
     main()
