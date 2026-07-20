@@ -42,6 +42,8 @@
   .rec{ font-weight:700; }
   .price{ font-weight:700; }
   .price.low{ color:var(--below); }
+  a.plink{ text-decoration:none; color:inherit; }
+  a.plink:hover .price{ text-decoration:underline; text-underline-offset:2px; }
   .vs{ display:block; font-size:10.5px; font-weight:700; margin-top:1px; }
   .vs.t-blue{ color:#2563eb; } .vs.t-yellow{ color:#c08a00; } .vs.t-red{ color:#d6362c; } .vs.t-dred{ color:#8a1a12; } .vs.t-na{ color:#b9c0b9; font-weight:500; }
   td .na{ color:#c2c8c2; }
@@ -103,7 +105,7 @@ var I18N = {
   ko:{ title:"판매채널 가격 비교",
     subtitle:"판매자별 · 제안가 대비 Ozon · Wildberries · 공식몰(Подружка) · 통화 ₽",
     legend:'각 칸 아래 %는 <b>제안가 대비 할인율</b>: <b class="c-blue">파랑</b>=제안가 이상, <b class="c-yellow">노랑</b>=~30% 할인, <b class="c-red">빨강</b>=31~50% 할인, <b class="c-dred">진빨강</b>=50% 초과 할인. 굵은 초록가격 = 그 제품의 최저 채널.',
-    col_product:"제품", col_rec:"MSRP", col_mall:"공식몰",
+    col_product:"제품", col_rec:"제안가", col_mall:"공식몰",
     f_all:"전체", f_d30:"30%↑ 할인", f_d50:"50%↑ 할인", f_over:"정가보다 비쌈", f_count:"개 표시", f_none:"해당 조건의 제품이 없어요.",
     date_l:"날짜:", view_l:"보기:", avg:"그날 평균",
     avg_tag:"그날 평균", note_nodata:"이 날짜엔 기록이 없어 최신값을 표시합니다.",
@@ -112,7 +114,7 @@ var I18N = {
   en:{ title:"Channel Price Compare",
     subtitle:"By seller · vs. recommended price · Ozon · Wildberries · Official Mall (Подружка) · ₽",
     legend:'The % is the <b>discount vs. recommended price</b>: <b class="c-blue">blue</b>=at/above rec, <b class="c-yellow">yellow</b>=up to 30% off, <b class="c-red">red</b>=31–50% off, <b class="c-dred">dark red</b>=over 50% off. Bold green price = lowest channel.',
-    col_product:"Product", col_rec:"MSRP", col_mall:"Official Mall",
+    col_product:"Product", col_rec:"Rec.", col_mall:"Official Mall",
     f_all:"All", f_d30:"30%+ off", f_d50:"50%+ off", f_over:"Above rec.", f_count:" shown", f_none:"No products match.",
     date_l:"Date:", view_l:"View:", avg:"Day average",
     avg_tag:"day average", note_nodata:"No record for this date — showing latest.",
@@ -121,7 +123,7 @@ var I18N = {
   ru:{ title:"Сравнение цен по каналам",
     subtitle:"По продавцам · относит. реком. цены · Ozon · Wildberries · Офиц. магазин (Подружка) · ₽",
     legend:'Процент — <b>скидка от реком. цены</b>: <b class="c-blue">синий</b>=не ниже реком., <b class="c-yellow">жёлтый</b>=до 30%, <b class="c-red">красный</b>=31–50%, <b class="c-dred">тёмно-красный</b>=более 50%. Жирная зелёная цена = мин. канал.',
-    col_product:"Товар", col_rec:"MSRP", col_mall:"Офиц. магазин",
+    col_product:"Товар", col_rec:"Реком.", col_mall:"Офиц. магазин",
     f_all:"Все", f_d30:"скидка 30%+", f_d50:"скидка 50%+", f_over:"дороже реком.", f_count:" показано", f_none:"Нет подходящих товаров.",
     date_l:"Дата:", view_l:"Показ:", avg:"Среднее за день",
     avg_tag:"среднее за день", note_nodata:"Нет записи на эту дату — показано последнее.",
@@ -142,7 +144,7 @@ function sellerItems(sid){ return seller(sid).items; }
 function sellerName(s){ return s["name_"+lang] || s.name_ko; }
 function localName(item){ return item["name_"+lang] || item.name_ko; }
 
-function cell(price, rec, isLow){
+function cell(price, rec, isLow, url){
   if(price==null) return '<td class="num"><span class="na">—</span></td>';
   var vs='<span class="vs t-na">—</span>';
   if(rec){
@@ -154,7 +156,9 @@ function cell(price, rec, isLow){
     else { cls='t-dred'; txt='−'+pct+'%'; }
     vs='<span class="vs '+cls+'">'+txt+'</span>';
   }
-  return '<td class="num"><span class="price'+(isLow?' low':'')+'">'+fmt(price)+'</span>'+vs+'</td>';
+  var pr='<span class="price'+(isLow?' low':'')+'">'+fmt(price)+'</span>';
+  if(url) pr='<a class="plink" href="'+url+'" target="_blank" rel="noopener" title="상품 페이지 열기">'+pr+'</a>';
+  return '<td class="num">'+pr+vs+'</td>';
 }
 
 function pctOf(v, r){ return (v==null||!r) ? null : Math.round((1-v/r)*100); }
@@ -272,12 +276,15 @@ function render(){
     shown++;
     var vals=[p.o,p.w,p.m].filter(function(v){return v!=null;});
     var low=vals.length?Math.min.apply(null,vals):null;
+    var oUrl=it.ozon_code?("https://www.ozon.ru/product/"+it.ozon_code+"/"):null;
+    var wUrl=it.wb_nm?("https://www.wildberries.ru/catalog/"+it.wb_nm+"/detail.aspx"):null;
+    var mUrl=it.mall_url||null;
     var tr=document.createElement("tr");
     tr.innerHTML='<td class="name">'+localName(it)+'</td>'+
       '<td class="num rec">'+fmt(p.r)+'</td>'+
-      cell(p.o,p.r,p.o!=null&&p.o===low)+
-      cell(p.w,p.r,p.w!=null&&p.w===low)+
-      cell(p.m,p.r,p.m!=null&&p.m===low);
+      cell(p.o,p.r,p.o!=null&&p.o===low,oUrl)+
+      cell(p.w,p.r,p.w!=null&&p.w===low,wUrl)+
+      cell(p.m,p.r,p.m!=null&&p.m===low,mUrl);
     rows.appendChild(tr);
   }
   if(shown===0) rows.innerHTML='<tr><td colspan="5" class="status">'+I18N[lang].f_none+'</td></tr>';
