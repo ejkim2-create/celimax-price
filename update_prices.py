@@ -15,6 +15,8 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/125.0 Safari/537.36")
 S = requests.Session(); S.headers.update({"User-Agent": UA, "Accept-Language": "ru-RU,ru;q=0.9"})
 
+WB_WALLET = 0.02  # WB 지갑 할인율(빨간 가격). WB가 바꾸면 이 숫자만 수정 (예: 3%면 0.03, 미적용이면 0)
+
 def get_wb(nm):
     if not nm: return None
     u = "https://card.wb.ru/cards/v2/detail?appType=1&curr=rub&dest=-1257786&spp=30&nm=%s" % nm
@@ -23,11 +25,15 @@ def get_wb(nm):
         ps = r.json().get("data", {}).get("products", [])
         if not ps: return None
         p = ps[0]
+        base = None
         for sz in p.get("sizes", []):
             v = (sz.get("price") or {}).get("product")
-            if v: return round(v/100)
-        for k in ("salePriceU","priceU"):
-            if p.get(k): return round(p[k]/100)
+            if v: base = v; break
+        if base is None:
+            for k in ("salePriceU","priceU"):
+                if p.get(k): base = p[k]; break
+        if base is None: return None
+        return int(base/100*(1-WB_WALLET))  # 지갑가(빨간 가격)
     except Exception as e:
         print("  [WB]", nm, e, file=sys.stderr)
     return None
