@@ -1,0 +1,292 @@
+{
+  "date": "2026-07-20",
+  "currency": "₽",
+  "channels": {
+    "ozon": {
+      "label": "Ozon",
+      "url": "https://www.ozon.ru"
+    },
+    "wb": {
+      "label": "Wildberries",
+      "url": "https://www.wildberries.ru"
+    },
+    "mall": {
+      "label_ko": "공식몰",
+      "label_en": "Official Mall",
+      "label_ru": "Офиц. магазин",
+      "url": "https://podrygka.ru"
+    }
+  },
+  "items": [
+    {
+      "name_ko": "셀리맥스 듀얼배리어 크리미 토너 150ml",
+      "name_en": "CELIMAX Dual Barrier Creamy Toner 150ml",
+      "name_ru": "CELIMAX Крем-тонер Dual Barrier 150мл",
+      "rec": 1932,
+      "ozon": 1282,
+      "wb": 1312,
+      "mall": 1216
+    },
+    {
+      "name_ko": "셀리맥스 듀얼배리어 부스팅 세럼 30ml",
+      "name_en": "CELIMAX Dual Barrier Boosting Serum 30ml",
+      "name_ru": "CELIMAX Сыворотка Dual Barrier Boosting 30мл",
+      "rec": 2093,
+      "ozon": 1751,
+      "wb": 1485,
+      "mall": 1495
+    },
+    {
+      "name_ko": "셀리맥스 듀얼배리어 스킨웨어러블 크림 50ml",
+      "name_en": "CELIMAX Dual Barrier Skin Wearable Cream 50ml",
+      "name_ru": "CELIMAX Крем Dual Barrier Skin Wearable 50мл",
+      "rec": 2338,
+      "ozon": null,
+      "wb": 1671,
+      "mall": 3790
+    },
+    {
+      "name_ko": "셀리맥스 듀얼배리어 마일드 젤 클렌저 200ml 새제품",
+      "name_en": "CELIMAX Dual Barrier Mild Gel Cleanser 200ml (new)",
+      "name_ru": "CELIMAX Гель для умывания Dual Barrier Mild 200мл (новый)",
+      "rec": 1771,
+      "ozon": 1944,
+      "wb": 1671,
+      "mall": null
+    },
+    {
+      "name_ko": "셀리맥스 듀얼배리어 워터리 선크림 40ml",
+      "name_en": "CELIMAX Dual Barrier Watery Sun Cream 40ml",
+      "name_ru": "CELIMAX Солнцезащитный крем Dual Barrier Watery 40мл",
+      "rec": 1771,
+      "ozon": null,
+      "wb": 1618,
+      "mall": 2365
+    },
+    {
+      "name_ko": "셀리맥스 더 리얼 노니 에너지 리페어 크림 50ml",
+      "name_en": "CELIMAX The Real Noni Energy Repair Cream 50ml",
+      "name_ru": "CELIMAX Крем The Real Noni Energy Repair 50мл",
+      "rec": 2415,
+      "ozon": 1534,
+      "wb": null,
+      "mall": null
+    },
+    {
+      "name_ko": "셀리맥스 더 리얼 노니 에너지 앰플 30ml",
+      "name_en": "CELIMAX The Real Noni Energy Ampoule 30ml",
+      "name_ru": "CELIMAX Ампула The Real Noni Energy 30мл",
+      "rec": 2093,
+      "ozon": 1486,
+      "wb": 1406,
+      "mall": 2012
+    },
+    {
+      "name_ko": "셀리맥스 더 리얼 노니 하이드라 퍼밍 로션 150ml",
+      "name_en": "CELIMAX The Real Noni Hydra Firming Lotion 150ml",
+      "name_ru": "CELIMAX Лосьон The Real Noni Hydra Firming 150мл",
+      "rec": 2254,
+      "ozon": 1430,
+      "wb": 1394,
+      "mall": 2520
+    },
+    {
+      "name_ko": "셀리맥스 더 리얼 시카 수딩 크림 50ml",
+      "name_en": "CELIMAX The Real Cica Soothing Cream 50ml",
+      "name_ru": "CELIMAX Крем The Real Cica Soothing 50мл",
+      "rec": 1610,
+      "ozon": 1023,
+      "wb": null,
+      "mall": 1097
+    },
+    {
+      "name_ko": "셀리맥스 지우개 시카 바하 아크네 폼 클렌징 150ml",
+      "name_en": "CELIMAX Eraser Cica BHA Acne Foam Cleanser 150ml",
+      "name_ru": "CELIMAX Пенка Eraser Cica BHA Acne 150мл",
+      "rec": 1288,
+      "ozon": null,
+      "wb": 1214,
+      "mall": 969
+    },
+    {
+      "name_ko": "셀리맥스 베이킹 소다 딥 포어 지우개 폼 클렌징 150ml",
+      "name_en": "CELIMAX Baking Soda Deep Pore Eraser Foam Cleanser 150ml",
+      "name_ru": "CELIMAX Пенка Baking Soda Deep Pore Eraser 150мл",
+      "rec": 966,
+      "ozon": null,
+      "wb": 972,
+      "mall": 848
+    },
+    {
+      "name_ko": "셀리맥스 브라이트닝 모공잡티 선크림 50ml",
+      "name_en": "CELIMAX Brightening Pore & Blemish Sun Cream 50ml",
+      "name_ru": "CELIMAX Солнцезащитный крем Brightening Pore & Blemish 50мл",
+      "rec": 1694,
+      "ozon": null,
+      "wb": null,
+      "mall": 2948
+    },
+    {
+      "name_ko": "셀리맥스 더 비타 A 레티날 샷 타이트닝 부스터 15ml",
+      "name_en": "CELIMAX The Vita A Retinal Shot Tightening Booster 15ml",
+      "name_ru": "CELIMAX Бустер The Vita A Retinal Shot Tightening 15мл",
+      "rec": 1932,
+      "ozon": 1380,
+      "wb": 1340,
+      "mall": 1167
+    },
+    {
+      "name_ko": "셀리맥스 오일 컨트롤 캡슐 에센스 30ml",
+      "name_en": "CELIMAX Oil Control Capsule Essence 30ml",
+      "name_ru": "CELIMAX Эссенция Oil Control Capsule 30мл",
+      "rec": 1855,
+      "ozon": null,
+      "wb": 1201,
+      "mall": 1221
+    },
+    {
+      "name_ko": "셀리맥스 더마네이처 프레시 블랙헤드 호호바 클렌징오일 150ml",
+      "name_en": "CELIMAX Dermanature Fresh Blackhead Jojoba Cleansing Oil 150ml",
+      "name_ru": "CELIMAX Гидрофильное масло Dermanature Jojoba 150мл",
+      "rec": 1533,
+      "ozon": 1433,
+      "wb": 1472,
+      "mall": 1001
+    },
+    {
+      "name_ko": "셀리맥스 더 리얼 노니 얼티밋 아이 크림 20ml",
+      "name_en": "CELIMAX The Real Noni Ultimate Eye Cream 20ml",
+      "name_ru": "CELIMAX Крем для глаз The Real Noni Ultimate 20мл",
+      "rec": 2254,
+      "ozon": 1446,
+      "wb": 1482,
+      "mall": 1309
+    },
+    {
+      "name_ko": "셀리맥스 오일 컨트롤 라이트 선크림 40ml",
+      "name_en": "CELIMAX Oil Control Light Sun Cream 40ml",
+      "name_ru": "CELIMAX Солнцезащитный крем Oil Control Light 40мл",
+      "rec": 1694,
+      "ozon": 1539,
+      "wb": 1632,
+      "mall": 1920
+    },
+    {
+      "name_ko": "셀리맥스 브라이트닝 모공잡티크림 35ml",
+      "name_en": "CELIMAX Brightening Pore & Blemish Cream 35ml",
+      "name_ru": "CELIMAX Крем Brightening Pore & Blemish 35мл",
+      "rec": 1932,
+      "ozon": null,
+      "wb": 1359,
+      "mall": 2907
+    },
+    {
+      "name_ko": "셀리맥스 더 리얼 노니 리프레쉬 클레이 마스크 120g",
+      "name_en": "CELIMAX The Real Noni Refresh Clay Mask 120g",
+      "name_ru": "CELIMAX Глиняная маска The Real Noni Refresh 120г",
+      "rec": 1533,
+      "ozon": 1140,
+      "wb": null,
+      "mall": null
+    },
+    {
+      "name_ko": "셀리맥스 듀얼배리어 마일드 젤 클렌저 200ml 인하상품",
+      "name_en": "CELIMAX Dual Barrier Mild Gel Cleanser 200ml (price-down)",
+      "name_ru": "CELIMAX Гель для умывания Dual Barrier Mild 200мл (снижение цены)",
+      "rec": 1771,
+      "ozon": 2113,
+      "wb": null,
+      "mall": 1189
+    },
+    {
+      "name_ko": "셀리맥스 더 리얼 노니 리프레쉬 클레이 마스크 120g",
+      "name_en": "CELIMAX The Real Noni Refresh Clay Mask 120g",
+      "name_ru": "CELIMAX Глиняная маска The Real Noni Refresh 120г",
+      "rec": 1533,
+      "ozon": 1240,
+      "wb": 1209,
+      "mall": 1095
+    },
+    {
+      "name_ko": "셀리맥스 더 비타 A 레티놀 샷 타이트닝 세럼 30ml",
+      "name_en": "CELIMAX The Vita A Retinol Shot Tightening Serum 30ml",
+      "name_ru": "CELIMAX Сыворотка The Vita A Retinol Shot Tightening 30мл",
+      "rec": 2177,
+      "ozon": 1278,
+      "wb": 1321,
+      "mall": 1555
+    },
+    {
+      "name_ko": "셀리맥스 어성초 바하 지우개 필링 패드 60매",
+      "name_en": "CELIMAX Houttuynia BHA Eraser Peeling Pad 60ea",
+      "name_ru": "CELIMAX Пилинг-пэды Houttuynia BHA Eraser 60шт",
+      "rec": 1694,
+      "ozon": null,
+      "wb": 1059,
+      "mall": 1039
+    },
+    {
+      "name_ko": "셀리맥스 지우개 시카 바하 블레미쉬 토너 패드 60매",
+      "name_en": "CELIMAX Eraser Cica BHA Blemish Toner Pad 60ea",
+      "name_ru": "CELIMAX Тонер-пэды Eraser Cica BHA Blemish 60шт",
+      "rec": 1932,
+      "ozon": null,
+      "wb": 1203,
+      "mall": 1170
+    },
+    {
+      "name_ko": "셀리맥스 브라이트닝 모공잡티세럼 30ml",
+      "name_en": "CELIMAX Brightening Pore & Blemish Serum 30ml",
+      "name_ru": "CELIMAX Сыворотка Brightening Pore & Blemish 30мл",
+      "rec": 2177,
+      "ozon": null,
+      "wb": 1447,
+      "mall": 3050
+    },
+    {
+      "name_ko": "셀리맥스 브라이트닝 모공잡티패드 40매",
+      "name_en": "CELIMAX Brightening Pore & Blemish Pad 40ea",
+      "name_ru": "CELIMAX Пэды Brightening Pore & Blemish 40шт",
+      "rec": 1771,
+      "ozon": null,
+      "wb": 1147,
+      "mall": 1020
+    },
+    {
+      "name_ko": "셀리맥스 더 리얼 노니 아크네 버블 폼 클렌징 155ml",
+      "name_en": "CELIMAX The Real Noni Acne Bubble Foam Cleanser 155ml",
+      "name_ru": "CELIMAX Пенка The Real Noni Acne Bubble 155мл",
+      "rec": 1771,
+      "ozon": null,
+      "wb": 1585,
+      "mall": 2200
+    },
+    {
+      "name_ko": "셀리맥스 더 리얼 노니 에너지 리페어 크림 50ml",
+      "name_en": "CELIMAX The Real Noni Energy Repair Cream 50ml",
+      "name_ru": "CELIMAX Крем The Real Noni Energy Repair 50мл",
+      "rec": 2415,
+      "ozon": null,
+      "wb": 1577,
+      "mall": 1221
+    },
+    {
+      "name_ko": "셀리맥스 하트핑크 톤업 선크림 40ml",
+      "name_en": "CELIMAX Heart Pink Tone-up Sun Cream 40ml",
+      "name_ru": "CELIMAX Солнцезащитный крем Heart Pink Tone-up 40мл",
+      "rec": 1694,
+      "ozon": null,
+      "wb": 1246,
+      "mall": 2360
+    },
+    {
+      "name_ko": "셀리맥스 더마네이처 릴리프 마데시카 pH 밸런싱 약산성 폼 클렌징 150ml",
+      "name_en": "CELIMAX Dermanature Relief Madecica pH Balancing Weak-Acid Foam Cleanser 150ml",
+      "name_ru": "CELIMAX Слабокислотная пенка Dermanature Relief Madecica pH 150мл",
+      "rec": 966,
+      "ozon": null,
+      "wb": null,
+      "mall": 815
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CELIMAX · 3-Channel Price Compare</title>
+<meta name="description" content="CELIMAX product prices across Ozon, Wildberries and the official mall, compared to the recommended price.">
+<style>
+  :root{ color-scheme:light; --brand:#1f8f4e; --below:#1f8f4e; --above:#d6362c; --bg:#f7f8f7; --ink:#1a1f1a; --muted:#5b665b; --line:#eef0ee; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",Pretendard,sans-serif; background:var(--bg); color:var(--ink); font-size:14px; }
+  .wrap{ max-width:1040px; margin:0 auto; padding:20px 16px 48px; }
+  .top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+  h1{ font-size:19px; margin:0 0 2px; font-weight:700; }
+  h1 .brand{ color:var(--brand); }
+  .sub{ color:var(--muted); font-size:12.5px; margin:2px 0 0; }
+  .langs{ display:flex; gap:4px; }
+  .langs button{ border:1px solid #d7ddd7; background:#fff; color:var(--muted); font-size:12px; padding:5px 10px; border-radius:7px; cursor:pointer; font-weight:600; }
+  .langs button.active{ background:var(--brand); color:#fff; border-color:var(--brand); }
+  .legend{ font-size:11.5px; color:var(--muted); margin:14px 0 10px; line-height:1.5; }
+  .legend b.below{ color:var(--below); } .legend b.above{ color:var(--above); }
+  .tablecard{ background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  table{ width:100%; border-collapse:collapse; }
+  th,td{ text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  th{ background:#f2f5f2; font-size:11px; color:var(--muted); font-weight:600; }
+  th.num,td.num{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  tr:last-child td{ border-bottom:none; }
+  .name{ font-weight:600; font-size:12px; max-width:320px; }
+  .rec{ font-weight:700; }
+  .price{ font-weight:700; }
+  .price.low{ color:var(--below); }
+  .vs{ display:block; font-size:10.5px; font-weight:700; margin-top:1px; }
+  .vs.below{ color:var(--below); } .vs.above{ color:var(--above); } .vs.na{ color:#b9c0b9; font-weight:500; }
+  td .na{ color:#c2c8c2; }
+  .foot{ color:#8a938a; font-size:11.5px; margin-top:16px; line-height:1.55; }
+  .status{ color:#8a938a; font-size:12px; padding:24px 4px; }
+  /* Mobile */
+  @media (max-width:640px){
+    .wrap{ padding:16px 10px 40px; }
+    th,td{ padding:8px 7px; }
+    .name{ font-size:11.5px; max-width:none; }
+    th{ font-size:10px; }
+    .price{ font-size:12px; }
+    .vs{ font-size:9.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1><span class="brand">CELIMAX</span> · <span data-i="title"></span> <span id="date" class="sub" style="display:inline"></span></h1>
+      <p class="sub" data-i="subtitle"></p>
+    </div>
+    <div class="langs" id="langs">
+      <button data-lang="ko">한국어</button>
+      <button data-lang="en">EN</button>
+      <button data-lang="ru">RU</button>
+    </div>
+  </div>
+
+  <div class="legend" data-i="legend"></div>
+
+  <div class="tablecard">
+    <table>
+      <thead><tr>
+        <th data-i="col_product"></th>
+        <th class="num" data-i="col_rec"></th>
+        <th class="num">Ozon</th>
+        <th class="num">Wildberries</th>
+        <th class="num" data-i="col_mall"></th>
+      </tr></thead>
+      <tbody id="rows"><tr><td colspan="5" class="status" data-i="loading"></td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="foot" data-i="foot"></div>
+</div>
+
+<script>
+const I18N = {
+  ko:{
+    title:"3채널 가격 비교",
+    subtitle:"제안가(권장 소비자가) 대비 Ozon · Wildberries · 공식몰(Подружка) 판매가 · 통화 ₽",
+    legend:'각 칸 아래 %는 <b>제안가 대비</b>: <b class="below">−초록</b> = 제안가보다 쌈, <b class="above">+빨강</b> = 제안가보다 비쌈. 굵은 초록가격 = 그 제품의 최저 채널.',
+    col_product:"제품", col_rec:"제안가", col_mall:"공식몰",
+    loading:"불러오는 중…",
+    err:"데이터를 불러오지 못했습니다 (data.json 확인).",
+    foot:'기준일 {date} · Ozon=셀러 Подружка/celimax, WB=card.wb.ru, 공식몰=podrygka.ru. "—"는 해당 채널 미판매/미확인.'
+  },
+  en:{
+    title:"3-Channel Price Compare",
+    subtitle:"Ozon · Wildberries · Official Mall (Подружка) prices vs. recommended price · currency ₽",
+    legend:'The % under each cell is <b>vs. the recommended price</b>: <b class="below">−green</b> = cheaper, <b class="above">+red</b> = more expensive. Bold green price = lowest channel for that product.',
+    col_product:"Product", col_rec:"Rec.", col_mall:"Official Mall",
+    loading:"Loading…",
+    err:"Failed to load data (check data.json).",
+    foot:'As of {date} · Ozon=seller Подружка/celimax, WB=card.wb.ru, Official mall=podrygka.ru. "—" = not sold / unconfirmed on that channel.'
+  },
+  ru:{
+    title:"Сравнение цен по 3 каналам",
+    subtitle:"Цены Ozon · Wildberries · Офиц. магазин (Подружка) относительно рекомендованной цены · валюта ₽",
+    legend:'Процент под каждой ячейкой — <b>относительно рекоменд. цены</b>: <b class="below">−зелёный</b> = дешевле, <b class="above">+красный</b> = дороже. Жирная зелёная цена = самый дешёвый канал для товара.',
+    col_product:"Товар", col_rec:"Реком.", col_mall:"Офиц. магазин",
+    loading:"Загрузка…",
+    err:"Не удалось загрузить данные (проверьте data.json).",
+    foot:'На {date} · Ozon=продавец Подружка/celimax, WB=card.wb.ru, Офиц. магазин=podrygka.ru. «—» = не продаётся / не подтверждено на канале.'
+  }
+};
+
+let DATA = null;
+let lang = (localStorage.getItem("celimax_lang")) || (navigator.language||"ko").slice(0,2);
+if(!I18N[lang]) lang = "ko";
+
+function fmt(n){ return n==null ? "—" : n.toLocaleString("ru-RU")+" ₽"; }
+
+function cell(price, rec, isLow){
+  if(price==null) return '<td class="num"><span class="na">—</span></td>';
+  let vs='<span class="vs na">—</span>';
+  if(rec){
+    const pct=Math.round((1-price/rec)*100);
+    if(price<rec) vs='<span class="vs below">−'+pct+'%</span>';
+    else if(price>rec) vs='<span class="vs above">+'+Math.abs(pct)+'%</span>';
+    else vs='<span class="vs na">0%</span>';
+  }
+  return '<td class="num"><span class="price'+(isLow?' low':'')+'">'+fmt(price)+'</span>'+vs+'</td>';
+}
+
+function nameOf(it){ return it["name_"+lang] || it.name_ko; }
+
+function applyStatic(){
+  const t=I18N[lang];
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i]").forEach(el=>{
+    const k=el.getAttribute("data-i");
+    if(k==="foot"){ el.innerHTML = t.foot.replace("{date}", DATA?DATA.date:"—"); return; }
+    if(k==="loading"){ el.textContent = t.loading; return; }
+    if(t[k]!=null) el.innerHTML = t[k];
+  });
+  document.querySelectorAll("#langs button").forEach(b=>{
+    b.classList.toggle("active", b.dataset.lang===lang);
+  });
+}
+
+function render(){
+  applyStatic();
+  const rows=document.getElementById("rows");
+  if(!DATA){ return; }
+  document.getElementById("date").textContent = "· "+DATA.date;
+  rows.innerHTML="";
+  DATA.items.forEach(it=>{
+    const vals=[it.ozon,it.wb,it.mall].filter(v=>v!=null);
+    const low = vals.length ? Math.min(...vals) : null;
+    const tr=document.createElement("tr");
+    tr.innerHTML='<td class="name">'+nameOf(it)+'</td>'+
+      '<td class="num rec">'+fmt(it.rec)+'</td>'+
+      cell(it.ozon,it.rec,it.ozon!=null&&it.ozon===low)+
+      cell(it.wb,it.rec,it.wb!=null&&it.wb===low)+
+      cell(it.mall,it.rec,it.mall!=null&&it.mall===low);
+    rows.appendChild(tr);
+  });
+}
+
+document.getElementById("langs").addEventListener("click", e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  lang=b.dataset.lang; localStorage.setItem("celimax_lang",lang); render();
+});
+
+applyStatic(); // show localized loading text immediately
+fetch("data.json?_="+Date.now())
+  .then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(j=>{ DATA=j; render(); })
+  .catch(err=>{
+    document.getElementById("rows").innerHTML =
+      '<tr><td colspan="5" class="status">'+I18N[lang].err+'</td></tr>';
+    console.error(err);
+  });
+</script>
+</body>
+</html>
