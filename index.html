@@ -17,6 +17,10 @@
   .langs{ display:flex; gap:4px; }
   .langs button{ border:1px solid #d7ddd7; background:#fff; color:var(--muted); font-size:12px; padding:5px 10px; border-radius:7px; cursor:pointer; font-weight:600; }
   .langs button.active{ background:var(--brand); color:#fff; border-color:var(--brand); }
+  .filters{ display:flex; align-items:center; gap:6px; margin:2px 0 8px; flex-wrap:wrap; }
+  .filters button{ border:1px solid #d7ddd7; background:#fff; color:var(--muted); font-size:11.5px; padding:4px 11px; border-radius:14px; cursor:pointer; font-weight:600; }
+  .filters button.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
+  .fcount{ font-size:11px; color:var(--muted); margin-left:2px; }
   .tabs{ display:flex; gap:6px; margin:14px 0 6px; flex-wrap:wrap; border-bottom:2px solid var(--line); }
   .tabs button{ border:none; background:none; color:var(--muted); font-size:13px; font-weight:700; padding:8px 12px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; }
   .tabs button.active{ color:var(--brand); border-bottom-color:var(--brand); }
@@ -74,6 +78,8 @@
     <span class="viewing" id="viewing"></span>
   </div>
 
+  <div class="filters" id="filters"></div>
+
   <div class="legend" data-i="legend"></div>
 
   <div class="tablecard">
@@ -98,6 +104,7 @@ var I18N = {
     subtitle:"판매자별 · 제안가 대비 Ozon · Wildberries · 공식몰(Подружка) · 통화 ₽",
     legend:'각 칸 아래 %는 <b>제안가 대비 할인율</b>: <b class="c-blue">파랑</b>=제안가 이상, <b class="c-yellow">노랑</b>=~30% 할인, <b class="c-red">빨강</b>=31~50% 할인, <b class="c-dred">진빨강</b>=50% 초과 할인. 굵은 초록가격 = 그 제품의 최저 채널.',
     col_product:"제품", col_rec:"제안가", col_mall:"공식몰",
+    f_all:"전체", f_d30:"30%↑ 할인", f_d50:"50%↑ 할인", f_over:"정가보다 비쌈", f_count:"개 표시", f_none:"해당 조건의 제품이 없어요.",
     date_l:"날짜:", view_l:"보기:", avg:"그날 평균",
     avg_tag:"그날 평균", note_nodata:"이 날짜엔 기록이 없어 최신값을 표시합니다.",
     loading:"불러오는 중…", err:"데이터를 불러오지 못했습니다.",
@@ -106,6 +113,7 @@ var I18N = {
     subtitle:"By seller · vs. recommended price · Ozon · Wildberries · Official Mall (Подружка) · ₽",
     legend:'The % is the <b>discount vs. recommended price</b>: <b class="c-blue">blue</b>=at/above rec, <b class="c-yellow">yellow</b>=up to 30% off, <b class="c-red">red</b>=31–50% off, <b class="c-dred">dark red</b>=over 50% off. Bold green price = lowest channel.',
     col_product:"Product", col_rec:"Rec.", col_mall:"Official Mall",
+    f_all:"All", f_d30:"30%+ off", f_d50:"50%+ off", f_over:"Above rec.", f_count:" shown", f_none:"No products match.",
     date_l:"Date:", view_l:"View:", avg:"Day average",
     avg_tag:"day average", note_nodata:"No record for this date — showing latest.",
     loading:"Loading…", err:"Failed to load data.",
@@ -114,6 +122,7 @@ var I18N = {
     subtitle:"По продавцам · относит. реком. цены · Ozon · Wildberries · Офиц. магазин (Подружка) · ₽",
     legend:'Процент — <b>скидка от реком. цены</b>: <b class="c-blue">синий</b>=не ниже реком., <b class="c-yellow">жёлтый</b>=до 30%, <b class="c-red">красный</b>=31–50%, <b class="c-dred">тёмно-красный</b>=более 50%. Жирная зелёная цена = мин. канал.',
     col_product:"Товар", col_rec:"Реком.", col_mall:"Офиц. магазин",
+    f_all:"Все", f_d30:"скидка 30%+", f_d50:"скидка 50%+", f_over:"дороже реком.", f_count:" показано", f_none:"Нет подходящих товаров.",
     date_l:"Дата:", view_l:"Показ:", avg:"Среднее за день",
     avg_tag:"среднее за день", note_nodata:"Нет записи на эту дату — показано последнее.",
     loading:"Загрузка…", err:"Не удалось загрузить данные.",
@@ -124,6 +133,7 @@ var DATA=null, HISTORY=null;
 var lang = localStorage.getItem("celimax_lang") || (navigator.language||"ko").slice(0,2);
 if(!I18N[lang]) lang="ko";
 var sellerId=null, selDate=null, selTime="avg";
+var filter="all";
 
 function fmt(n){ return n==null ? "—" : n.toLocaleString("ru-RU")+" ₽"; }
 
@@ -145,6 +155,30 @@ function cell(price, rec, isLow){
     vs='<span class="vs '+cls+'">'+txt+'</span>';
   }
   return '<td class="num"><span class="price'+(isLow?' low':'')+'">'+fmt(price)+'</span>'+vs+'</td>';
+}
+
+function pctOf(v, r){ return (v==null||!r) ? null : Math.round((1-v/r)*100); }
+function matchFilter(p){
+  if(filter==="all") return true;
+  var chans=[p.o,p.w,p.m];
+  for(var i=0;i<3;i++){
+    var pc=pctOf(chans[i], p.r); if(pc==null) continue;
+    if(filter==="d30" && pc>=30) return true;
+    if(filter==="d50" && pc>=50) return true;
+    if(filter==="over" && pc<0) return true;
+  }
+  return false;
+}
+function buildFilters(){
+  var box=document.getElementById("filters"); box.innerHTML="";
+  var t=I18N[lang];
+  [["all",t.f_all],["d30",t.f_d30],["d50",t.f_d50],["over",t.f_over]].forEach(function(o){
+    var b=document.createElement("button"); b.textContent=o[1];
+    b.className=(filter===o[0]?"active":"");
+    b.onclick=function(){ filter=o[0]; render(); };
+    box.appendChild(b);
+  });
+  var c=document.createElement("span"); c.className="fcount"; c.id="fcount"; box.appendChild(c);
 }
 
 function daySnaps(date, sid){
@@ -221,7 +255,7 @@ function buildTimeSel(){
 }
 
 function render(){
-  applyStatic(); buildTabs(); buildTimeSel();
+  applyStatic(); buildTabs(); buildFilters(); buildTimeSel();
   var rows=document.getElementById("rows"); if(!DATA) return;
   var items=sellerItems(sellerId);
   var pr=priceRows();
@@ -231,8 +265,11 @@ function render(){
   else { vEl.className="viewing"; vEl.textContent=selDate+" "+selTime; }
 
   rows.innerHTML="";
+  var shown=0;
   for(var i=0;i<items.length;i++){
     var it=items[i], p=pr.rows[i]||{r:it.rec,o:null,w:null,m:null};
+    if(!matchFilter(p)) continue;
+    shown++;
     var vals=[p.o,p.w,p.m].filter(function(v){return v!=null;});
     var low=vals.length?Math.min.apply(null,vals):null;
     var tr=document.createElement("tr");
@@ -243,6 +280,8 @@ function render(){
       cell(p.m,p.r,p.m!=null&&p.m===low);
     rows.appendChild(tr);
   }
+  if(shown===0) rows.innerHTML='<tr><td colspan="5" class="status">'+I18N[lang].f_none+'</td></tr>';
+  var fc=document.getElementById("fcount"); if(fc) fc.textContent=shown+I18N[lang].f_count;
 }
 
 document.getElementById("langs").addEventListener("click", function(e){
