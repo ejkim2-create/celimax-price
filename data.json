@@ -3,9 +3,9 @@
   "sellers": [
     {
       "id": "celimax",
-      "name_ko": "CELIMAX (자사)",
-      "name_en": "CELIMAX (own)",
-      "name_ru": "CELIMAX (свой)",
+      "name_ko": "Подружка (Teber)",
+      "name_en": "Подружка (Teber)",
+      "name_ru": "Подружка (Teber)",
       "items": [
         { "name_ko": "셀리맥스 듀얼배리어 크리미 토너 150ml", "name_en": "CELIMAX Dual Barrier Creamy Toner 150ml", "name_ru": "CELIMAX Крем-тонер Dual Barrier 150мл", "rec": 1932, "ozon": 1282, "wb": 1312, "mall": 1216 },
         { "name_ko": "셀리맥스 듀얼배리어 부스팅 세럼 30ml", "name_en": "CELIMAX Dual Barrier Boosting Serum 30ml", "name_ru": "CELIMAX Сыворотка Dual Barrier Boosting 30мл", "rec": 2093, "ozon": 1751, "wb": 1485, "mall": 1495 },
