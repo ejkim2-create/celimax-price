@@ -27,7 +27,7 @@
   .viewing.avg{ color:var(--brand); font-weight:700; }
   .viewing.note{ color:var(--above); font-weight:600; }
   .legend{ font-size:11.5px; color:var(--muted); margin:10px 0 10px; line-height:1.5; }
-  .legend b.below{ color:var(--below); } .legend b.above{ color:var(--above); }
+  .legend b.c-blue{ color:#2563eb; } .legend b.c-yellow{ color:#c08a00; } .legend b.c-red{ color:#d6362c; } .legend b.c-dred{ color:#8a1a12; }
   .tablecard{ background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.06); }
   table{ width:100%; border-collapse:collapse; }
   th,td{ text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:middle; }
@@ -39,7 +39,7 @@
   .price{ font-weight:700; }
   .price.low{ color:var(--below); }
   .vs{ display:block; font-size:10.5px; font-weight:700; margin-top:1px; }
-  .vs.below{ color:var(--below); } .vs.above{ color:var(--above); } .vs.na{ color:#b9c0b9; font-weight:500; }
+  .vs.t-blue{ color:#2563eb; } .vs.t-yellow{ color:#c08a00; } .vs.t-red{ color:#d6362c; } .vs.t-dred{ color:#8a1a12; } .vs.t-na{ color:#b9c0b9; font-weight:500; }
   td .na{ color:#c2c8c2; }
   .foot{ color:#8a938a; font-size:11.5px; margin-top:16px; line-height:1.55; }
   .status{ color:#8a938a; font-size:12px; padding:24px 4px; }
@@ -96,7 +96,7 @@
 var I18N = {
   ko:{ title:"판매채널 가격 비교",
     subtitle:"판매자별 · 제안가 대비 Ozon · Wildberries · 공식몰(Подружка) · 통화 ₽",
-    legend:'각 칸 아래 %는 <b>제안가 대비</b>: <b class="below">−초록</b> = 쌈, <b class="above">+빨강</b> = 비쌈. 굵은 초록 = 그 제품의 최저 채널.',
+    legend:'각 칸 아래 %는 <b>제안가 대비 할인율</b>: <b class="c-blue">파랑</b>=제안가 이상, <b class="c-yellow">노랑</b>=~30% 할인, <b class="c-red">빨강</b>=31~50% 할인, <b class="c-dred">진빨강</b>=50% 초과 할인. 굵은 초록가격 = 그 제품의 최저 채널.',
     col_product:"제품", col_rec:"제안가", col_mall:"공식몰",
     date_l:"날짜:", view_l:"보기:", avg:"그날 평균",
     avg_tag:"그날 평균", note_nodata:"이 날짜엔 기록이 없어 최신값을 표시합니다.",
@@ -104,7 +104,7 @@ var I18N = {
     foot:'최신 기준일 {date} · 4시간마다 자동 갱신·기록. "—"는 미판매/미확인. 날짜를 고르면 그날 평균가, "보기"에서 특정 시각도 볼 수 있어요.' },
   en:{ title:"Channel Price Compare",
     subtitle:"By seller · vs. recommended price · Ozon · Wildberries · Official Mall (Подружка) · ₽",
-    legend:'The % under each cell is <b>vs. recommended price</b>: <b class="below">−green</b> = cheaper, <b class="above">+red</b> = pricier. Bold green = lowest channel.',
+    legend:'The % is the <b>discount vs. recommended price</b>: <b class="c-blue">blue</b>=at/above rec, <b class="c-yellow">yellow</b>=up to 30% off, <b class="c-red">red</b>=31–50% off, <b class="c-dred">dark red</b>=over 50% off. Bold green price = lowest channel.',
     col_product:"Product", col_rec:"Rec.", col_mall:"Official Mall",
     date_l:"Date:", view_l:"View:", avg:"Day average",
     avg_tag:"day average", note_nodata:"No record for this date — showing latest.",
@@ -112,7 +112,7 @@ var I18N = {
     foot:'Latest {date} · auto-updated & logged every 4h. "—" = not sold/unconfirmed. Pick a date for the day average; pick a time under "View".' },
   ru:{ title:"Сравнение цен по каналам",
     subtitle:"По продавцам · относит. реком. цены · Ozon · Wildberries · Офиц. магазин (Подружка) · ₽",
-    legend:'Процент под ячейкой — <b>относит. реком. цены</b>: <b class="below">−зелёный</b> = дешевле, <b class="above">+красный</b> = дороже. Жирный зелёный = мин. канал.',
+    legend:'Процент — <b>скидка от реком. цены</b>: <b class="c-blue">синий</b>=не ниже реком., <b class="c-yellow">жёлтый</b>=до 30%, <b class="c-red">красный</b>=31–50%, <b class="c-dred">тёмно-красный</b>=более 50%. Жирная зелёная цена = мин. канал.',
     col_product:"Товар", col_rec:"Реком.", col_mall:"Офиц. магазин",
     date_l:"Дата:", view_l:"Показ:", avg:"Среднее за день",
     avg_tag:"среднее за день", note_nodata:"Нет записи на эту дату — показано последнее.",
@@ -134,11 +134,16 @@ function localName(item){ return item["name_"+lang] || item.name_ko; }
 
 function cell(price, rec, isLow){
   if(price==null) return '<td class="num"><span class="na">—</span></td>';
-  var vs='<span class="vs na">—</span>';
-  if(rec){ var pct=Math.round((1-price/rec)*100);
-    if(price<rec) vs='<span class="vs below">−'+pct+'%</span>';
-    else if(price>rec) vs='<span class="vs above">+'+Math.abs(pct)+'%</span>';
-    else vs='<span class="vs na">0%</span>'; }
+  var vs='<span class="vs t-na">—</span>';
+  if(rec){
+    var pct=Math.round((1-price/rec)*100);
+    var cls, txt;
+    if(pct<=0){ cls='t-blue'; txt=(pct===0?'0%':'+'+Math.abs(pct)+'%'); }
+    else if(pct<=30){ cls='t-yellow'; txt='−'+pct+'%'; }
+    else if(pct<=50){ cls='t-red'; txt='−'+pct+'%'; }
+    else { cls='t-dred'; txt='−'+pct+'%'; }
+    vs='<span class="vs '+cls+'">'+txt+'</span>';
+  }
   return '<td class="num"><span class="price'+(isLow?' low':'')+'">'+fmt(price)+'</span>'+vs+'</td>';
 }
 
