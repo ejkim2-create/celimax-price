@@ -22,6 +22,8 @@ jobs:
         run: pip install requests
       - name: Update prices
         run: python update_prices.py
+        env:
+          PROXY_URL: ${{ secrets.PROXY_URL }}
       - name: Commit changes
         run: |
           git config user.name  "celimax-price-bot"
